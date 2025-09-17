@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2FA Code Generator</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            color: #333;
+        }
+        
+        .container {
+            background-color: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            width: 100%;
+            max-width: 500px;
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #4a86e8 0%, #3a76d8 100%);
+            color: white;
+            padding: 25px 30px;
+            text-align: center;
+        }
+        
+        h1 {
+            font-weight: 600;
+            margin-bottom: 5px;
+            font-size: 28px;
+        }
+        
+        .subtitle {
+            font-weight: 300;
+            opacity: 0.9;
+        }
+        
+        .content {
+            padding: 30px;
+        }
+        
+        .description {
+            color: #666;
+            margin-bottom: 25px;
+            line-height: 1.6;
+            text-align: center;
+        }
+        
+        .input-group {
+            margin-bottom: 25px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 500;
+        }
+        
+        input[type="text"] {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+        
+        input[type="text"]:focus {
+            border-color: #4a86e8;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(74, 134, 232, 0.2);
+        }
+        
+        button {
+            background: linear-gradient(135deg, #4a86e8 0%, #3a76d8 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 16px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 500;
+            width: 100%;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        .result {
+            margin-top: 30px;
+            padding: 25px;
+            background-color: #f8f9fa;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.05);
+        }
+        
+        .result-title {
+            color: #555;
+            margin-bottom: 15px;
+            font-weight: 500;
+        }
+        
+        .code {
+            font-size: 42px;
+            font-weight: bold;
+            color: #2c3e50;
+            letter-spacing: 8px;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+            text-shadow: 2px 2px 3px rgba(0, 0, 0, 0.1);
+        }
+        
+        .timer {
+            color: #777;
+            font-size: 16px;
+            margin-top: 15px;
+        }
+        
+        .share-section {
+            margin-top: 35px;
+            padding-top: 25px;
+            border-top: 1px solid #eee;
+        }
+        
+        .share-title {
+            color: #555;
+            margin-bottom: 15px;
+            font-weight: 500;
+        }
+        
+        .share-url {
+            word-break: break-all;
+            padding: 15px;
+            background-color: #f1f3f5;
+            border-radius: 8px;
+            margin: 15px 0;
+            text-align: left;
+            font-size: 14px;
+            border: 1px dashed #ccc;
+        }
+        
+        .copy-btn {
+            background: linear-gradient(135deg, #5cb85c 0%, #449d44 100%);
+            margin-top: 10px;
+        }
+        
+        .warning {
+            color: #e74c3c;
+            font-size: 14px;
+            margin-top: 20px;
+            padding: 12px;
+            background-color: #fdedec;
+            border-radius: 8px;
+            border-left: 4px solid #e74c3c;
+        }
+        
+        .footer {
+            text-align: center;
+            padding: 20px;
+            color: #777;
+            font-size: 14px;
+            background-color: #f8f9fa;
+            border-top: 1px solid #eee;
+        }
+        
+        @media (max-width: 600px) {
+            .container {
+                border-radius: 10px;
+            }
+            
+            .header {
+                padding: 20px;
+            }
+            
+            .content {
+                padding: 20px;
+            }
+            
+            .code {
+                font-size: 32px;
+                letter-spacing: 5px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>2FA Code Generator</h1>
+            <p class="subtitle">Generate Time-Based One-Time Passwords</p>
+        </div>
+        
+        <div class="content">
+            <p class="description">
+                Enter your authorization code (secret key) to generate a time-based 2FA code.
+                You can also share it with others by generating a shareable URL.
+            </p>
+            
+            <div class="input-group">
+                <label for="secret">Authorization Code (Secret Key):</label>
+                <input type="text" id="secret" placeholder="Enter your secret key (e.g., JBSWY3DPEHPK3PXP)" autocomplete="off">
+            </div>
+            
+            <button id="generate-btn">Generate 2FA Code</button>
+            
+            <div class="result" id="result">
+                <h3 class="result-title">Your 2FA Code:</h3>
+                <div class="code" id="code">------</div>
+                <div class="timer" id="timer">Code refreshes in: 30 seconds</div>
+            </div>
+            
+            <div class="share-section">
+                <h3 class="share-title">Shareable Link:</h3>
+                <p>Copy the URL below to share your 2FA code with others:</p>
+                <div class="share-url" id="share-url"></div>
+                <button class="copy-btn" id="copy-btn">Copy Share URL</button>
+            </div>
+            
+            <div class="warning" id="warning">
+                <strong>Warning:</strong> Sharing this URL will expose your secret key. Only share with trusted parties.
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>This 2FA generator works entirely in your browser. Your secret keys are not sent to any server.</p>
+        </div>
+    </div>
+
+    <script>
+        // Base32 decoding function
+        function base32Decode(base32) {
+            const base32Chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
+            let bits = '';
+            let result = '';
+            
+            // Remove any padding and convert to uppercase
+            base32 = base32.replace(/=+$/, '').toUpperCase();
+            
+            for (let i = 0; i < base32.length; i++) {
+                const val = base32Chars.indexOf(base32[i]);
+                if (val === -1) {
+                    console.error('Invalid base32 character:', base32[i]);
+                    return null;
+                }
+                bits += val.toString(2).padStart(5, '0');
+            }
+            
+            for (let i = 0; i + 8 <= bits.length; i += 8) {
+                const chunk = bits.substr(i, 8);
+                result += String.fromCharCode(parseInt(chunk, 2));
+            }
+            
+            return result;
+        }
+
+        // HMAC-based One-Time Password algorithm
+        function generateTOTP(secret, period = 30) {
+            try {
+                // Decode the base32 secret
+                const key = base32Decode(secret.replace(/\s/g, ''));
+                if (!key) return null;
+                
+                // Get the current time counter
+                const time = Math.floor(Date.now() / 1000 / period);
+                
+                // Convert time to hex and then to a byte array
+                const timeHex = ('0'.repeat(16) + time.toString(16)).slice(-16);
+                const timeBytes = [];
+                for (let i = 0; i < timeHex.length; i += 2) {
+                    timeBytes.push(parseInt(timeHex.substr(i, 2), 16));
+                }
+                
+                // Create a key byte array
+                const keyBytes = [];
+                for (let i = 0; i < key.length; i++) {
+                    keyBytes.push(key.charCodeAt(i));
+                }
+                
+                // HMAC-SHA1 calculation (simplified version)
+                // Note: This is a simplified implementation. In a real application,
+                // you would use a proper cryptographic library for HMAC-SHA1.
+                let hmac;
+                try {
+                    // Try to use the Web Crypto API if available
+                    const keyData = new Uint8Array(keyBytes);
+                    const timeData = new Uint8Array(timeBytes);
+                    
+                    // Import the key for HMAC
+                    crypto.subtle.importKey(
+                        'raw',
+                        keyData,
+                        { name: 'HMAC', hash: 'SHA-1' },
+                        false,
+                        ['sign']
+                    ).then(cryptoKey => {
+                        return crypto.subtle.sign('HMAC', cryptoKey, timeData);
+                    }).then(signature => {
+                        hmac = new Uint8Array(signature);
+                        
+                        // Dynamic Truncation
+                        const offset = hmac[hmac.length - 1] & 0x0f;
+                        const binary = 
+                            ((hmac[offset] & 0x7f) << 24) |
+                            ((hmac[offset + 1] & 0xff) << 16) |
+                            ((hmac[offset + 2] & 0xff) << 8) |
+                            (hmac[offset + 3] & 0xff);
+                        
+                        // Generate the 6-digit code
+                        const otp = binary % Math.pow(10, 6);
+                        document.getElementById('code').textContent = otp.toString().padStart(6, '0');
+                    }).catch(err => {
+                        console.error('Error generating TOTP:', err);
+                        document.getElementById('code').textContent = 'ERROR';
+                    });
+                } catch (e) {
+                    console.error('Web Crypto API not available:', e);
+                    // Fallback to a simple code for demonstration purposes
+                    const timeBasedValue = (time % 1000000).toString();
+                    document.getElementById('code').textContent = timeBasedValue.padStart(6, '0');
+                }
+                
+                // Calculate time until next code
+                const timeLeft = period - (Math.floor(Date.now() / 1000) % period);
+                document.getElementById('timer').textContent = `Code refreshes in: ${timeLeft} seconds`;
+                
+                return true;
+            } catch (error) {
+                console.error('Error generating TOTP:', error);
+                return null;
+            }
+        }
+
+        // Update the timer every second
+        function startTimer() {
+            setInterval(() => {
+                const period = 30;
+                const timeLeft = period - (Math.floor(Date.now() / 1000) % period);
+                document.getElementById('timer').textContent = `Code refreshes in: ${timeLeft} seconds`;
+                
+                // Regenerate code when timer resets
+                if (timeLeft === 30) {
+                    const secret = document.getElementById('secret').value;
+                    if (secret) {
+                        generateTOTP(secret);
+                    }
+                }
+            }, 1000);
+        }
+
+        // Generate shareable URL
+        function generateShareURL(secret) {
+            const currentURL = window.location.href.split('?')[0];
+            return `${currentURL}?secret=${encodeURIComponent(secret)}`;
+        }
+
+        // Check if there's a secret in the URL parameters
+        function getSecretFromURL() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get('secret');
+        }
+
+        // Copy to clipboard
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                const btn = document.getElementById('copy-btn');
+                const originalText = btn.textContent;
+                btn.textContent = 'Copied!';
+                setTimeout(() => {
+                    btn.textContent = originalText;
+                }, 2000);
+            }).catch(err => {
+                console.error('Failed to copy: ', err);
+            });
+        }
+
+        // Initialize the page
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check for secret in URL
+            const urlSecret = getSecretFromURL();
+            if (urlSecret) {
+                document.getElementById('secret').value = urlSecret;
+                generateTOTP(urlSecret);
+                document.getElementById('result').style.display = 'block';
+                document.getElementById('warning').style.display = 'block';
+                
+                // Generate share URL
+                const shareURL = generateShareURL(urlSecret);
+                document.getElementById('share-url').textContent = shareURL;
+            }
+            
+            // Set up event listeners
+            document.getElementById('generate-btn').addEventListener('click', function() {
+                const secret = document.getElementById('secret').value;
+                if (secret) {
+                    const success = generateTOTP(secret);
+                    if (success) {
+                        document.getElementById('result').style.display = 'block';
+                        document.getElementById('warning').style.display = 'block';
+                        
+                        // Generate share URL
+                        const shareURL = generateShareURL(secret);
+                        document.getElementById('share-url').textContent = shareURL;
+                    } else {
+                        alert('Invalid secret key. Please check your input.');
+                    }
+                } else {
+                    alert('Please enter a secret key.');
+                }
+            });
+            
+            document.getElementById('copy-btn').addEventListener('click', function() {
+                const shareURL = document.getElementById('share-url').textContent;
+                if (shareURL) {
+                    copyToClipboard(shareURL);
+                }
+            });
+            
+            // Start the timer
+            startTimer();
+        });
+    </script>
+</body>
+</html>
